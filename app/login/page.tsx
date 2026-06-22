@@ -8,10 +8,12 @@ import { motion } from 'framer-motion';
 import { ArrowLeft } from 'lucide-react';
 import { FormField } from '@/components/ui/form-field';
 import { Input } from '@/components/ui/input';
+import { useEffect } from 'react';
 
 interface LoginFormData {
   email: string;
   password: string;
+  rememberMe: boolean;
 }
 
 const styles = {
@@ -28,15 +30,37 @@ export default function LoginPage() {
     register,
     handleSubmit,
     setError,
+    setValue,
     formState: { errors, isSubmitting },
-  } = useForm<LoginFormData>();
+  } = useForm<LoginFormData>({
+    defaultValues: {
+      email: '',
+      password: '',
+      rememberMe: false,
+    }
+  });
   const router = useRouter();
   const setUser = useAuthStore(selectSetUser);
 
+  useEffect(() => {
+    const savedEmail = localStorage.getItem('@economai:remembered_email');
+    if (savedEmail) {
+      setValue('email', savedEmail);
+      setValue('rememberMe', true);
+    }
+  }, [setValue]);
+
   const onSubmit = async (data: LoginFormData) => {
     try {
-      const response = await login(data);
+      const response = await login({ email: data.email, password: data.password });
       setUser(response.user);
+
+      if (data.rememberMe) {
+        localStorage.setItem('@economai:remembered_email', data.email);
+      } else {
+        localStorage.removeItem('@economai:remembered_email');
+      }
+
       console.info('[/login] Login successful:', response.user.name);
       router.push('/dashboard');
     } catch (error) {
@@ -127,6 +151,18 @@ export default function LoginPage() {
                   {...register('password', { required: 'Senha é obrigatória' })}
                 />
               </FormField>
+
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="rememberMe"
+                  className="w-4 h-4 accent-emerald-500 cursor-pointer"
+                  {...register('rememberMe')}
+                />
+                <label htmlFor="rememberMe" className="text-sm text-zinc-500 cursor-pointer">
+                  Lembrar de mim
+                </label>
+              </div>
 
               <button
                 disabled={isSubmitting}
