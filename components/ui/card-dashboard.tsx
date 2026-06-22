@@ -15,7 +15,7 @@ export default function CardDashboard({ title, value = 0, valueColor, icon: Icon
   }).format(Number(value));
 
   return (
-    <div className="w-[340px] bg-white rounded-xl shadow-sm border border-zinc-100 p-6 h-[120px] flex flex-col gap-2">
+    <div className="w-[340px] bg-white rounded-xl shadow-sm border border-zinc-100 p-6 h-[120px] flex flex-col gap-2 grow-1">
       <div className="flex justify-between">
         <h4 className="text-sm text-zinc-500">{title}</h4>
         <span
